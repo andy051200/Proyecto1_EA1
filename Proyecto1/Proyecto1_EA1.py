@@ -24,6 +24,8 @@ import sys
 from PyLTSpice.LTSpiceBatch import LTCommander
 from shutil import copyfile
 import os
+from pydub import AudioSegment #pip intall pydub
+
 '''------------------------------------------------------------------------------
 -----------------------DEFINICION DE OBJETOS------------------------------------
 ------------------------------------------------------------------------------'''
@@ -400,12 +402,12 @@ def conversion_ganancias():
     conv_gain10( gain10.get())
     conv_dist( gain11.get())
     conv_master(gain12.get())
-#funcion de ejecutar el programa
+#funcion de ejecutar la ecualizacion deseada
 def ecualizar():
     global eq_var                                                   #variable global de equalizacion
     global RB1, RB2, RB3, RB4, RB5, RB6, RB7, RB8, RB9, RB10        #variables globales de ganancias/banda
     global M_dist, M_gain                                           #variables globales distorsion y main
-
+    global filename1, filename2                                     #variables globales de archivos
     print("El archivo 1 a importar es: "+filename1)                 #se muestra ubicaciond e .wav 1
     print("El archivo 2 a importar es: "+filename2)                 #se muestra ubicaciond e .wav 2
     #si se escogio un valor de ecualizacion predeterminado
@@ -503,6 +505,8 @@ def ecualizar():
     "M_gain":str(M_gain),     #variable para ganancia
     "transtop":str(5),
     "timestep":str(0.001)
+    #"input1":"wave1.wav",
+    #"input2":"wave2.wav"
     #.tran 0 {transtop} 0 {timestep} startup
     }
     file = bytes(os.getcwd()+"\param.txt",encoding='utf-8')
@@ -536,12 +540,21 @@ def browseFiles1():
     #para audio 1
     filename1 = filedialog.askopenfilename(initialdir = "/", title = "Select a File", filetypes = (("Archivo WAV", "*.wav*"),("all files","*.*"))) 
     label1_file_explorer.configure(text="File Opened: "+filename1)
-    
+    file1 = AudioSegment.from_wav(str(filename1)) # path donde esta guardado el wav
+    file1.export("wave1.wav", format="wav") # se genera una copia del archivo ingresado arriva en formato wav
+
+# Toma el archivo, genera una copia de este con un nombre distinto
+#file1 = AudioSegment.from_wav("eq.wav") # path donde esta guardado el wav
+#file1.export("wave.wav", format="wav") # se genera una copia del archivo ingresado arriva en formato wav
+
+
 def browseFiles2(): 
     global filename2        #variable global
     #para audio 2
     filename2 = filedialog.askopenfilename(initialdir = "/", title = "Select a File", filetypes = (("Archivo WAV", "*.wav*"),("all files","*.*"))) 
     label2_file_explorer.configure(text="File Opened: "+filename2) 
+    file2 = AudioSegment.from_wav(str(filename2)) # path donde esta guardado el wav
+    file2.export("wave2.wav", format="wav") # se genera una copia del archivo ingresado arriva en formato wav
 #funciones para seleccionar modos predeterminados de ecualizacion       
 def rock_func ():
     global eq_var
@@ -564,7 +577,7 @@ def reggae_func ():
 #---------FONDO DE LA INTERFAZ
 img = PhotoImage(file="fondo2_.png")
 label = Label(root,image=img)
-label.place(x=0, y=0)
+label.place(x=0, y=0)   
 
 #---------TITULO
 titulo=tk.Label(root,text = "Proyecto 1, Electrónica Analógica 1") #texto como titulo de GUI
